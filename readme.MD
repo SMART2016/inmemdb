@@ -30,4 +30,36 @@
    - Output of REDIS CLI when it connects to the echo server, on server console
     ![Screenshot 2023-09-27 at 1.05.02 PM.png](Screenshot%202023-09-27%20at%201.05.02%20PM.png)  
        - This is the serialization protocol of REDIS , clients doesn't connect to REDIS over HTTP , but it happens over raw TCP, so there has to be some protocol based on which the client and REDIS server can communicate.
-    
+  
+## Datatypes
+    - string , int, array
+    - binary string
+
+## REDIS serialization Protocol (RESP)
+ - **RESP**:
+   - Request Response Protocol
+   - It is light weight as compared to JSON
+   - Commands are sent by redis client as an array of strings serialised using RESP.
+   - Every data type starts with a special character
+   - Data ends with \r\n (CRLF)
+     - Eg: 
+       - Sending a **string** pong to redis : `+pong\r\n`
+       - Sending an **int**: `:1720\r\n`
+       - **Bulk Strings**: `$4\r\npong\r\n`
+         - Starts with $
+         - 4 is the number of bytes in the string.
+         - Bulk strings are binary safe, simple strings cannot contain \r\n in the string itself as they are the terminators for the end of string
+         - With bulk string we can store any binary data in redis.
+         - Null value: `$-1\r\n` (-1 tells no data)
+       - **Array**: `["a",200,"cat]`
+         - Starts with * 
+         - RESP encoding of above array:
+         - `*3\r\n
+            $1\r\na\r\n
+            :200\r\n
+            $3\r\ncat\r\n`
+         - empty array : `*0\r\n`
+         - null array : `*-1\r\n`
+       - **Error**:
+         - Starts with -
+         - `- Key Not Found \r\n`
