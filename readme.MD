@@ -1,7 +1,7 @@
 # In Memory DB
 
 ## How does Listen System call works:
- - does listen system call loops infinitely over the TCP connection network buffer ?
+ - **Does listen system call loops infinitely over the TCP connection network buffer ?**
    - The listen system call in the context of TCP (Transmission Control Protocol) does not loop infinitely over the TCP connection network buffer. Instead, the listen system call prepares a socket to accept incoming connections on a specific port, and it sets the socket's status to "listening." It doesn't directly deal with the network buffer.
      - Here's how it works:
         - **Setting up the Socket**: When a program calls the socket system call to create a socket, it specifies the type of socket (e.g., SOCK_STREAM for TCP) and other parameters. This socket is then associated with a local endpoint, typically an IP address and port.
@@ -38,6 +38,7 @@
 ## REDIS serialization Protocol (RESP)
  - **RESP**:
    - Request Response Protocol
+   - https://redis.io/docs/reference/protocol-spec/#:~:text=RESP%20can%20serialize%20different%20data,that%20the%20server%20should%20execute
    - It is light weight as compared to JSON
    - Commands are sent by redis client as an array of strings serialised using RESP.
    - Every data type starts with a special character
