@@ -14,6 +14,20 @@
    - The network buffer management, which involves reading and writing data to and from the network, is typically handled at a lower level by the networking stack of the operating system. The listen and accept system calls primarily deal with managing the status of the socket, accepting new connections, and providing a new socket for communication once a connection is established.
    - In summary, the listen system call doesn't loop infinitely over the TCP connection network buffer; rather, it prepares the socket to accept incoming connections, and the actual data transfer occurs through separate socket operations like read and write. The operating system's networking stack manages the network buffers to ensure data is sent and received reliably.
 
- - **Command to send request to the server:**
+##  **Command to send request to the server:**
    - Establish Connection:
      - nc localhost 7379
+
+## Install Redis CLI
+   - **MAC**:
+     - brew tap ringohub/redis-cli
+     - brew update && brew doctor 
+     - brew install redis-cli
+   - **Ubuntu**:
+     - sudo apt-get update
+     - sudo apt install redis-tools
+
+   - Output of REDIS CLI when it connects to the echo server, on server console
+    ![Screenshot 2023-09-27 at 1.05.02 PM.png](Screenshot%202023-09-27%20at%201.05.02%20PM.png)  
+       - This is the serialization protocol of REDIS , clients doesn't connect to REDIS over HTTP , but it happens over raw TCP, so there has to be some protocol based on which the client and REDIS server can communicate.
+    
