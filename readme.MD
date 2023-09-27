@@ -11,9 +11,9 @@
         - **Accepting a Connection:** When a connection request arrives from a client, the accept system call returns a new socket. This new socket represents the established connection to that client.
         - **Handling Data:** The program can use this new socket to read data sent by the client or write data to the client. This is where data is transferred between the server and the client.
         - **Closing the Connection:** When the server is done with a particular client, it closes the socket associated with that client to terminate the connection. The server can continue to accept new connections and handle them in a similar manner.
- - The network buffer management, which involves reading and writing data to and from the network, is typically handled at a lower level by the networking stack of the operating system. The listen and accept system calls primarily deal with managing the status of the socket, accepting new connections, and providing a new socket for communication once a connection is established.
- - In summary, the listen system call doesn't loop infinitely over the TCP connection network buffer; rather, it prepares the socket to accept incoming connections, and the actual data transfer occurs through separate socket operations like read and write. The operating system's networking stack manages the network buffers to ensure data is sent and received reliably.
+   - The network buffer management, which involves reading and writing data to and from the network, is typically handled at a lower level by the networking stack of the operating system. The listen and accept system calls primarily deal with managing the status of the socket, accepting new connections, and providing a new socket for communication once a connection is established.
+   - In summary, the listen system call doesn't loop infinitely over the TCP connection network buffer; rather, it prepares the socket to accept incoming connections, and the actual data transfer occurs through separate socket operations like read and write. The operating system's networking stack manages the network buffers to ensure data is sent and received reliably.
 
- - Command to send request to the server:
+ - **Command to send request to the server:**
    - Establish Connection:
      - nc localhost 7379
