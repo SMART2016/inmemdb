@@ -40,7 +40,7 @@
    - Request Response Protocol
    - https://redis.io/docs/reference/protocol-spec/#:~:text=RESP%20can%20serialize%20different%20data,that%20the%20server%20should%20execute
    - It is light weight as compared to JSON
-   - Commands are sent by redis client as an array of strings serialised using RESP.
+   - _Commands are sent by redis client as an array of strings serialised using RESP._
    - Every data type starts with a special character
    - Data ends with \r\n (CRLF)
      - Eg: 

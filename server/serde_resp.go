@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 )
 
 /**
@@ -144,4 +145,36 @@ func readArray(data []byte) (interface{}, int, error) {
 		pos += delta
 	}
 	return elems, pos, nil
+}
+
+/**
+All commands are sent to the server as an array of strings encoded as RESP.
+This function helps decode the input command into a pure array of strings from the RESP encoded array of strings
+	Input Command: *3\r\n$3\r\nPUT\r\n$1\r\nK\r\n$1\r\nV\r\n
+	Decoded Output : ["PUT","K","V"]
+*/
+func DecodeInputCommand(data []byte) ([]string, error) {
+	value, err := Decode(data)
+	if err != nil {
+		return nil, err
+	}
+
+	ts := value.([]interface{})
+	tokens := make([]string, len(ts))
+	for i := range tokens {
+		tokens[i] = ts[i].(string)
+	}
+
+	return tokens, nil
+}
+
+func Encode(value interface{}, isSimple bool) []byte {
+	switch v := value.(type) {
+	case string:
+		if isSimple {
+			return []byte(fmt.Sprintf("+%s\r\n", v))
+		}
+		return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(v), v))
+	}
+	return []byte{}
 }
