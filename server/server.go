@@ -34,6 +34,7 @@ func RunInMemDBServer() {
 		clients += 1
 		log.Println("New Client is Connected to our server with address: ", newConnSocket.RemoteAddr(), "Client Numer=", clients)
 		handleConnection(newConnSocket, clients)
+		clients -= 1
 	}
 }
 

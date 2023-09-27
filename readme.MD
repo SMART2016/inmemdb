@@ -15,4 +15,5 @@
  - In summary, the listen system call doesn't loop infinitely over the TCP connection network buffer; rather, it prepares the socket to accept incoming connections, and the actual data transfer occurs through separate socket operations like read and write. The operating system's networking stack manages the network buffers to ensure data is sent and received reliably.
 
  - Command to send request to the server:
-   - 
+   - Establish Connection:
+     - nc localhost 7379
