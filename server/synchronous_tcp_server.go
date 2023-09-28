@@ -65,7 +65,7 @@ func handleConnection(newConnSocket net.Conn, clients int) error {
 	return nil
 }
 
-func readReq(c net.Conn) (string, error) {
+func readReq(c net.Conn) (*Command, error) {
 	//INFO: Max reads is 512 bytes on a single read call ,
 	//for larger inputs we keep calling readReq until
 	//we recieve EOF from client
@@ -73,19 +73,34 @@ func readReq(c net.Conn) (string, error) {
 
 	//INFO: This is a blocking call and blocks until the client
 	//sends some bytes to the server over the TCP connection.
-	n, err := c.Read(buf)
+	_, err := c.Read(buf)
 	if err != nil {
-		return "", err
+		return nil, err
+	}
+
+	//INFO: The requests or commands are submitted to The server as array of strings encoded in RESP,
+	//So the command is decoded into simple array
+	cmdTokens, err := DecodeInputCommand(buf)
+	if err != nil {
+		return nil, err
 	}
 
 	//INFO: we specifically mentioned the end of the buffer slice ,
 	//otherwise if the buffer is not full it can have garbage
-	return string(buf[:n]), nil
+	return &Command{
+		Cmd:  cmdTokens[0],
+		Args: cmdTokens[1:],
+	}, nil
 }
 
-func respond(req string, c net.Conn) error {
-	if _, err := c.Write([]byte(req)); err != nil {
-		return err
+func respond(req *Command, c net.Conn) error {
+	data, err := req.EvalCommand()
+	if err != nil {
+		c.Write(EncodeError(err))
+	}
+	_, err = c.Write(data)
+	if err != nil {
+		c.Write(EncodeError(err))
 	}
 	return nil
 }
