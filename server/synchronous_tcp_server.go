@@ -43,7 +43,7 @@ func handleConnection(newConnSocket net.Conn, clients int) error {
 	//Process on the connection that is established, continuously loop over the connection to keep reading
 	//whatever is sent by the client over the TCP connection.
 	for {
-		req, err := readReq(newConnSocket)
+		req, err := readCommand(newConnSocket)
 		if err != nil {
 
 			log.Println("Client disconnected", newConnSocket.RemoteAddr(), " ClientId = ", clients)
@@ -65,9 +65,9 @@ func handleConnection(newConnSocket net.Conn, clients int) error {
 	return nil
 }
 
-func readReq(c net.Conn) (*Command, error) {
+func readCommand(c net.Conn) (*Command, error) {
 	//INFO: Max reads is 512 bytes on a single read call ,
-	//for larger inputs we keep calling readReq until
+	//for larger inputs we keep calling readCommand until
 	//we recieve EOF from client
 	var buf []byte = make([]byte, 512)
 
