@@ -64,3 +64,8 @@
        - **Error**:
          - Starts with -
          - `- Key Not Found \r\n`
+
+## Running the first command with redis cli
+ - Running Ping command
+   - redis-cli -p 7379
+   - > ping
