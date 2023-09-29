@@ -69,3 +69,28 @@
  - Running Ping command
    - redis-cli -p 7379
    - > ping
+     > 
+
+## IO Multiplexing
+ - Event Loop is all about accessing IO using system calls like EPOLL, POLL , SELECT
+ - EPOLL equivalents:
+   - MAC: KQUEUE
+   - WIN: IOCP
+ - EPOLL: https://copyconstruct.medium.com/the-method-to-epolls-madness-d9d2d6378642
+ - **How data is red from disk or NIC in a process:**
+   - ![naive-approach.png](naive-approach.png)
+   - **From DISK:**
+     - Process requests a file from disk
+     - Data moved from DISK in blocks to os buffer (DMA)
+     - From OS buffer to User space process memory or process read buffer
+   - **From Network** 
+     - Data comes to NIC, OS pulls data to Socket OS buffer (DMA)
+     - Data then moves from socket buffer to user space process read buffer.
+ - System calls to work with EPOLL:
+   - create an epoller instance:
+     - epoll_create1
+   - Register all FD's to EPOLL instance:
+     - epoll_ctl passing all FD's
+   - Wait for some data to be ready on the registered FD's
+     - epoll_wait
+   - 
