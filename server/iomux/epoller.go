@@ -5,6 +5,7 @@ import (
 	"github.com/inmemdb/inmem/config"
 	"log"
 	"net"
+	"sync"
 	"syscall"
 )
 
@@ -24,6 +25,8 @@ type Epoll struct {
 
 	//The client connections that will be stored in the map
 	conns map[int]net.Conn
+
+	mu *sync.RWMutex
 }
 
 // NewPoller creates a new poller instance.
@@ -78,6 +81,8 @@ func (e *Epoll) Add(conn net.Conn) error {
 
 	//3. Create a kqueue event to monitor any IO on the FD above and add it to the change list for events
 	//changes list is holding all client fd's for whome we want to monitor IO
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	e.changes = append(e.changes,
 		syscall.Kevent_t{
 			Ident: uint64(fd), Flags: syscall.EV_ADD | syscall.EV_EOF, Filter: syscall.EVFILT_READ,
@@ -104,12 +109,17 @@ func (e *Epoll) Close(closeConns bool) error {
 }
 
 func (e *Epoll) Wait() ([]net.Conn, error) {
-	//Waits for any IO events on the FD's added in the changes List
+
+	//1. Waits for any IO events on the FD's added in the changes List
 	n, err := syscall.Kevent(e.epollerFd, e.changes, e.events, nil)
 	if err != nil {
 		return nil, err
 	}
 
+	//2. Fetches the connections from the events list who are have data to
+	//read and adds them to the list of connections which needs to be processed
+	e.mu.RLock()
+	defer e.mu.RUnlock()
 	conns := make([]net.Conn, 0, n)
 	for i := 0; i < n; i++ {
 		conn := e.conns[int(e.events[i].Ident)]
@@ -126,6 +136,8 @@ func (e *Epoll) Wait() ([]net.Conn, error) {
 func (e *Epoll) Remove(conn net.Conn) error {
 	defer conn.Close()
 	fd := socketFD(conn)
+	e.mu.Lock()
+	defer e.mu.Unlock()
 	if len(e.changes) <= 1 {
 		e.changes = nil
 	} else {
