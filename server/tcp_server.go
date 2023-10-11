@@ -8,8 +8,8 @@ import (
 	"strconv"
 )
 
-func RunInMemDBServer() {
-	log.Println("Running TCP server on", config.Host, config.Port)
+func RunInMemDBSyncServer() {
+	log.Println("Running Sync TCP server on", config.Host, config.Port)
 	var clients int
 
 	//INFO: 1. Listen call:
@@ -19,21 +19,20 @@ func RunInMemDBServer() {
 	if err != nil {
 		panic(err)
 	}
-
 	for {
 		//INFO: 2: Accept call:
 		//Accept creates a new socket for a new TCP client connection, it is a blocking call
 		//and waits until the client has successfully established the TCP connection with the server
 		// When a successful connection is established it returnes a new connection (socket) for the
 		//TCP client
-		newConnSocket, err := srvListnerSockt.Accept()
+		newClientConn, err := srvListnerSockt.Accept()
 		if err != nil {
 			panic(err)
 		}
 
 		clients += 1
-		log.Println("New Client is Connected to our server with address: ", newConnSocket.RemoteAddr(), "Client Numer=", clients)
-		handleConnection(newConnSocket, clients)
+		log.Println("New Client is Connected to our server with address: ", newClientConn.RemoteAddr(), "Client Numer=", clients)
+		handleConnection(newClientConn, clients)
 		clients -= 1
 	}
 }

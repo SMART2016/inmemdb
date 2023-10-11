@@ -10,7 +10,10 @@ import (
 func main() {
 	setupFlags()
 	log.Println("Starting InMemDb server !")
-	server.RunInMemDBServer()
+	//server.RunInMemDBSyncServer()
+
+	asyncServer := server.NewAsyncServer()
+	asyncServer.RunInMemDBASyncServer()
 }
 
 func setupFlags() {

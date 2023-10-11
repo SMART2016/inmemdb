@@ -86,11 +86,58 @@
    - **From Network** 
      - Data comes to NIC, OS pulls data to Socket OS buffer (DMA)
      - Data then moves from socket buffer to user space process read buffer.
- - System calls to work with EPOLL:
-   - create an epoller instance:
-     - epoll_create1
-   - Register all FD's to EPOLL instance:
-     - epoll_ctl passing all FD's
-   - Wait for some data to be ready on the registered FD's
-     - epoll_wait
-   - 
+     - System calls to work with EPOLL:
+       - create an epoller instance:
+         - epoll_create1
+       - Register all FD's to EPOLL instance:
+         - epoll_ctl passing all FD's
+       - Wait for some data to be ready on the registered FD's
+         - epoll_wait
+           - Epoll Implementation for different Machine Architecture in Golang
+             - https://github.com/smallnest/epoller
+               - Adding an user defined event while creating an epoller:
+                 - Adding a user-defined event filter to the epoll instance immediately after creating it. This is a common practice in event-driven programming to ensure that the epoll instance doesn't block indefinitely when waiting for events.
+                 - The purpose of adding this user-defined event is often to wake up the epoll instance if it's currently waiting for events and there are no other events pending. It acts as a sort of "wakeup" mechanism. When you add an event with EVFILT_USER and EV_ADD, it ensures that the epoll instance will return from its blocking call and not remain indefinitely blocked.
+                   - Without this user-defined event, if there are no other events to trigger the epoll instance, it might block until an event occurs.
+           - Waking up the EPOLL instance using user defined events:
+      
+                            
+                                package main
+
+                                import (
+                                "fmt"
+                                "syscall"
+                                )
+                    
+                                func main() {
+                                // Create a new epoll instance
+                                epollFD, err := syscall.EpollCreate1(0)
+                                if err != nil {
+                                panic(err)
+                                }
+                    
+                                    // Add a user-defined event to the epoll instance
+                                    userEvent := syscall.EpollEvent{
+                                        Events: syscall.EPOLLIN | syscall.EPOLLET,
+                                        Fd:     0, // This could be any file descriptor; 0 is used for demonstration purposes
+                                    }
+                    
+                                    err = syscall.EpollCtl(epollFD, syscall.EPOLL_CTL_ADD, userEvent.Fd, &userEvent)
+                                    if err != nil {
+                                        panic(err)
+                                    }
+                    
+                                    // ... Perform other epoll event registrations ...
+                    
+                                    // Somewhere else in your code, when you want to wake up the epoll instance:
+                                    // Trigger the user-defined event by writing to its associated file descriptor
+                                    wakeUpFD := userEvent.Fd
+                                    _, err = syscall.Write(wakeUpFD, []byte("Wakeup"))
+                                    if err != nil {
+                                        panic(err)
+                                    }
+                    
+                                    // ... Continue with epoll event handling ...
+                                }
+                            
+         
