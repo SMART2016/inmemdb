@@ -2,13 +2,14 @@ package server
 
 import (
 	"fmt"
-	"github.com/inmemdb/inmem/config"
-	iomux "github.com/inmemdb/inmem/server/iomux"
-	"github.com/inmemdb/inmem/server/response"
 	"log"
 	"net"
 	"strconv"
 	"syscall"
+
+	"github.com/inmemdb/inmem/config"
+	iomux "github.com/inmemdb/inmem/server/iomux"
+	"github.com/inmemdb/inmem/server/response"
 )
 
 type Poller interface {
@@ -19,8 +20,9 @@ type Poller interface {
 }
 
 type AsyncServer struct {
-	poller   Poller
-	listener net.Listener
+	poller      Poller
+	listener    net.Listener
+	threadCount int
 }
 
 func NewAsyncServer() *AsyncServer {
@@ -35,7 +37,7 @@ func NewAsyncServer() *AsyncServer {
 	}
 
 	return &AsyncServer{
-		epoller, listener,
+		epoller, listener, 0,
 	}
 
 }
@@ -52,6 +54,7 @@ func (as *AsyncServer) RunInMemDBASyncServer() {
 		}
 
 		//B. use a goroutene to process all connections as and when data is available to process.
+		//Creates a goroutene for each connection and remains for all connectection
 		go as.poll()
 
 		//c. Add the connection to the EPOLL event container in EPoll instance for monitoring

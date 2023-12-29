@@ -124,6 +124,7 @@ func (e *Epoll) Wait() ([]net.Conn, error) {
 	conns := make([]net.Conn, 0, n)
 	for i := 0; i < n; i++ {
 		conn := e.conns[int(e.events[i].Ident)]
+		//Close the connections for whome EOF has been sent
 		if (e.events[i].Flags & syscall.EV_EOF) == syscall.EV_EOF {
 			conn.Close()
 		}
