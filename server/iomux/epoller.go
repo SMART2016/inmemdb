@@ -117,7 +117,7 @@ func (e *Epoll) Wait() ([]net.Conn, error) {
 		return nil, err
 	}
 
-	//2. Fetches the connections from the events list who are have data to
+	//2. Fetches the connections from the events list who all have data to
 	//read and adds them to the list of connections which needs to be processed
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -129,6 +129,34 @@ func (e *Epoll) Wait() ([]net.Conn, error) {
 			conn.Close()
 		}
 		conns = append(conns, conn)
+	}
+	return conns, nil
+}
+
+// Used to wait for the passed connection only.
+func (e *Epoll) WaitForCurrentConn(c net.Conn) ([]net.Conn, error) {
+
+	//1. Waits for any IO events on the FD's added in the changes List
+	n, err := syscall.Kevent(e.epollerFd, e.changes, e.events, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	//2. Fetches the connections from the events list who all have data to
+	//read and adds them to the list of connections which needs to be processed
+	e.mu.RLock()
+	defer e.mu.RUnlock()
+	conns := make([]net.Conn, 0, n)
+	for i := 0; i < n; i++ {
+		// Finds events only for current passed connection and processes only for current connection
+		if int(e.events[i].Ident) == socketFD(c) {
+			conn := e.conns[int(e.events[i].Ident)]
+			//Close the connections for whome EOF has been sent
+			if (e.events[i].Flags & syscall.EV_EOF) == syscall.EV_EOF {
+				conn.Close()
+			}
+			conns = append(conns, conn)
+		}
 	}
 	return conns, nil
 }

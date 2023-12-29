@@ -16,6 +16,7 @@ type Poller interface {
 	Add(conn net.Conn) error
 	Close(closeConns bool) error
 	Wait() ([]net.Conn, error)
+	WaitForCurrentConn(conn net.Conn) ([]net.Conn, error)
 	Remove(conn net.Conn) error
 }
 
@@ -55,10 +56,25 @@ func (as *AsyncServer) RunInMemDBASyncServer() {
 
 		//B. use a goroutene to process all connections as and when data is available to process.
 		//Creates a goroutene for each connection and remains for all connectection
-		go as.poll()
+		//go as.poll()
+		go as.pollForConn(conn)
 
 		//c. Add the connection to the EPOLL event container in EPoll instance for monitoring
 		err = as.poller.Add(conn)
+	}
+}
+
+// Used to poll only for current connection not all connections.
+func (as *AsyncServer) pollForConn(c net.Conn) {
+	for {
+		conns, err := as.poller.WaitForCurrentConn(c)
+		if err != nil {
+			continue
+		}
+
+		for _, conn := range conns {
+			as.handleAsyncConnection(conn)
+		}
 	}
 }
 
