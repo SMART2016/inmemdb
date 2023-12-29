@@ -2,9 +2,10 @@ package main
 
 import (
 	"flag"
+	"log"
+
 	"github.com/inmemdb/inmem/config"
 	"github.com/inmemdb/inmem/server"
-	"log"
 )
 
 func main() {

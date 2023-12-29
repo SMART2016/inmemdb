@@ -2,11 +2,12 @@ package iomux
 
 import (
 	"errors"
-	"github.com/inmemdb/inmem/config"
 	"log"
 	"net"
 	"sync"
 	"syscall"
+
+	"github.com/inmemdb/inmem/config"
 )
 
 // Epoll is a epoll based poller.
@@ -26,7 +27,7 @@ type Epoll struct {
 	//The client connections that will be stored in the map
 	conns map[int]net.Conn
 
-	mu *sync.RWMutex
+	mu sync.RWMutex
 }
 
 // NewPoller creates a new poller instance.

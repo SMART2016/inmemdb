@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"github.com/inmemdb/inmem/server/response"
 	"log"
 )
 
@@ -41,9 +42,9 @@ func (cmd *Command) evalPING() ([]byte, error) {
 	}
 
 	if len(cmd.Args) == 0 {
-		b = Encode(COMMAND_PING_RESPONSE, true)
+		b = response.Encode(COMMAND_PING_RESPONSE, true)
 	} else {
-		b = Encode(cmd.Args[0], false)
+		b = response.Encode(cmd.Args[0], false)
 	}
 
 	return b, nil

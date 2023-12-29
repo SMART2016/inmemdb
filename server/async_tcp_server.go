@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/inmemdb/inmem/config"
 	iomux "github.com/inmemdb/inmem/server/iomux"
+	"github.com/inmemdb/inmem/server/response"
 	"log"
 	"net"
 	"strconv"
@@ -104,7 +105,7 @@ func readAsyncClientCommand(c net.Conn) (*Command, error) {
 
 	//INFO: The requests or commands are submitted to The server as array of strings encoded in RESP,
 	//So the command is decoded into simple array
-	cmdTokens, err := DecodeInputCommand(buf)
+	cmdTokens, err := response.DecodeInputCommand(buf)
 	if err != nil {
 		return nil, err
 	}
@@ -120,11 +121,11 @@ func readAsyncClientCommand(c net.Conn) (*Command, error) {
 func respondAsyncClient(req *Command, c net.Conn) error {
 	data, err := req.EvalCommand()
 	if err != nil {
-		c.Write(EncodeError(err))
+		c.Write(response.EncodeError(err))
 	}
 	_, err = c.Write(data)
 	if err != nil {
-		c.Write(EncodeError(err))
+		c.Write(response.EncodeError(err))
 	}
 	return nil
 }

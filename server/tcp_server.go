@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/inmemdb/inmem/config"
+	"github.com/inmemdb/inmem/server/response"
 	"io"
 	"log"
 	"net"
@@ -79,7 +80,7 @@ func readCommand(c net.Conn) (*Command, error) {
 
 	//INFO: The requests or commands are submitted to The server as array of strings encoded in RESP,
 	//So the command is decoded into simple array
-	cmdTokens, err := DecodeInputCommand(buf)
+	cmdTokens, err := response.DecodeInputCommand(buf)
 	if err != nil {
 		return nil, err
 	}
@@ -95,11 +96,11 @@ func readCommand(c net.Conn) (*Command, error) {
 func respond(req *Command, c net.Conn) error {
 	data, err := req.EvalCommand()
 	if err != nil {
-		c.Write(EncodeError(err))
+		c.Write(response.EncodeError(err))
 	}
 	_, err = c.Write(data)
 	if err != nil {
-		c.Write(EncodeError(err))
+		c.Write(response.EncodeError(err))
 	}
 	return nil
 }
