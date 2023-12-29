@@ -15,7 +15,7 @@ import (
 type Poller interface {
 	Add(conn net.Conn) error
 	Close(closeConns bool) error
-	Wait() ([]net.Conn, error)
+	//Wait() ([]net.Conn, error)
 	WaitForCurrentConn(conn net.Conn) ([]net.Conn, error)
 	Remove(conn net.Conn) error
 }
@@ -78,18 +78,18 @@ func (as *AsyncServer) pollForConn(c net.Conn) {
 	}
 }
 
-func (as *AsyncServer) poll() {
-	for {
-		conns, err := as.poller.Wait()
-		if err != nil {
-			continue
-		}
+// func (as *AsyncServer) poll() {
+// 	for {
+// 		conns, err := as.poller.Wait()
+// 		if err != nil {
+// 			continue
+// 		}
 
-		for _, conn := range conns {
-			as.handleAsyncConnection(conn)
-		}
-	}
-}
+// 		for _, conn := range conns {
+// 			as.handleAsyncConnection(conn)
+// 		}
+// 	}
+// }
 
 func (as *AsyncServer) handleAsyncConnection(clientConn net.Conn) error {
 	//Process on the connection that is established, continuously loop over the connection to keep reading
